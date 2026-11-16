@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 
 import '../widgets/welcome_section.dart';
 import '../widgets/search.dart';
-import '../widgets/word.dart';
+import '../widgets/word_card.dart';
 import '../widgets/category.dart';
 import '../widgets/nav.dart';
 import '../data/word_service.dart';
 import '../models/word.dart';
 import 'dictionary_screen.dart';
+import 'favorites_screen.dart';
+import 'dictionary_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -19,11 +22,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
   late final Future<Word?> wordOfTheDay;
+  late final Future<List<Word>> allWords;
+  String searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     wordOfTheDay = WordService.getWordOfTheDay();
+    allWords = WordService.getWords();
   }
 
   final List<Map<String, dynamic>> situations = [
@@ -54,29 +60,11 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
 
-void onNavigationTap(int index) {
-  if (index == 1) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const DictionaryScreen(),
-      ),
-    );
-  } else {
+  void onNavigationTap(int index) {
     setState(() {
       selectedIndex = index;
     });
-
-    if (index != 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('This section is coming soon!'),
-        ),
-      );
-    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +72,10 @@ void onNavigationTap(int index) {
       backgroundColor: const Color(0xFFF7F1E5),
 
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: IndexedStack(
+          index: selectedIndex,
+          children: [
+            SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,100 +147,110 @@ void onNavigationTap(int index) {
               // SEARCH BAR
               SearchBarWidget(
                 onChanged: (value) {
-                  debugPrint('Searching: $value');
+                  setState(() {
+                    searchQuery = value;
+                  });
                 },
               ),
 
-              const SizedBox(height: 28),
+              const SizedBox(height: 28),   
 
-              // WORD OF THE DAY TITLE
-              Row(
-                children: const [
-                  Icon(
-                    Icons.auto_awesome,
-                    color: Color(0xFFB94C3D),
-                    size: 16,
-                  ),
-                  SizedBox(width: 7),
-                  Text(
-                    "TODAY'S PICK",
-                    style: TextStyle(
-                      color: Color(0xFFB94C3D),
-                      fontWeight: FontWeight.w800,
-                      fontSize: 11,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 6),
-
-              Row(
-                children: [
-                  const Text(
-                    'Word of the day',
-                    style: TextStyle(
-                      fontSize: 21,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF171717),
-                    ),
-                  ),
-
-                  const Spacer(),
-
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF315B3D),
-                      border: Border.all(
-                        color: const Color(0xFF171717),
-                        width: 2,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text(
-                      'DAY 07',
+              if (searchQuery.trim().isNotEmpty)
+                FutureBuilder<List<Word>>(
+                  future: allWords,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    final results = snapshot.data!
+                        .where((w) => w.matchesQuery(searchQuery))
+                        .toList();
+                    if (results.isEmpty) {
+                      return const Text('No words found. Try another search!');
+                    }
+                    return Column(
+                      children: [
+                        for (final word in results) ...[
+                          WordCard(
+                            word: word,
+                            featured: true,
+                            onTap: () => showWordDetails(context, word),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      ],
+                    );
+                  },
+                )
+              else ...[
+                // WORD OF THE DAY TITLE
+                Row(
+                  children: const [
+                    Icon(Icons.auto_awesome, color: Color(0xFFB94C3D), size: 16),
+                    SizedBox(width: 7),
+                    Text(
+                      "TODAY'S PICK",
                       style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 10,
+                        color: Color(0xFFB94C3D),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 11,
+                        letterSpacing: 1.2,
                       ),
                     ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 10),
-
-              // WORD CARD
-FutureBuilder<Word?>(
-  future: wordOfTheDay,
-  builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-
-    if (snapshot.hasError) {
-      return Text('Could not load words: ${snapshot.error}');
-    }
-
-    if (!snapshot.hasData || snapshot.data == null) {
-      return const Text('No words available');
-    }
-
-    final word = snapshot.data!;
-
-    return WordOfDayCard(
-      word: word,
-    );
-  },
-),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    const Text(
+                      'Word of the day',
+                      style: TextStyle(
+                        fontSize: 21,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF171717),
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF315B3D),
+                        border: Border.all(color: const Color(0xFF171717), width: 2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        'DAY 07',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                FutureBuilder<Word?>(
+                  future: wordOfTheDay,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      return Text('Could not load words: ${snapshot.error}');
+                    }
+                    if (!snapshot.hasData || snapshot.data == null) {
+                      return const Text('No words available');
+                    }
+                    final word = snapshot.data!;
+                    return WordCard(
+                      word: word,
+                      featured: true,
+                      onTap: () => showWordDetails(context, word),
+                    );
+                  },
+                ),
+              ],
               const SizedBox(height: 28),
 
               // EXPLORE SECTION
@@ -351,6 +352,12 @@ FutureBuilder<Word?>(
 
             ],
           ),
+        ),
+
+         const DictionaryScreen(),
+            const FavoritesScreen(),
+            const Center(child: Text('Profile screen coming soon!')),
+          ],
         ),
       ),
 

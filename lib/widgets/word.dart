@@ -1,6 +1,9 @@
-
+import 'favorite_button.dart';
 import 'package:flutter/material.dart';
 import '../models/word.dart';
+import '../data/favorites_service.dart';
+import 'favorite_button.dart';
+
 
 class WordOfDayCard extends StatelessWidget {
   final Word word;
@@ -16,7 +19,7 @@ class WordOfDayCard extends StatelessWidget {
     final primaryMeaning = meanings.first;
     final otherMeanings = meanings.skip(1).join(' / ');
 
-    return Container(
+   return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -36,7 +39,6 @@ class WordOfDayCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -52,27 +54,36 @@ class WordOfDayCard extends StatelessWidget {
                 ),
               ),
 
-              IconButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Audio feature coming soon!'),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Audio feature coming soon!'),
+                        ),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.volume_up,
+                      color: Colors.white,
+                      size: 19,
                     ),
-                  );
-                },
-                icon: const Icon(
-                  Icons.volume_up,
-                  color: Colors.white,
-                  size: 19,
-                ),
-                style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFF315B3D),
-                  side: const BorderSide(
-                    color: Color(0xFF171717),
-                    width: 2,
+                    style: IconButton.styleFrom(
+                      backgroundColor: const Color(0xFF315B3D),
+                      side: const BorderSide(
+                        color: Color(0xFF171717),
+                        width: 2,
+                      ),
+                      fixedSize: const Size(42, 42),
+                    ),
                   ),
-                  fixedSize: const Size(42, 42),
-                ),
+
+                  const SizedBox(height: 8),
+
+                  FavoriteButton(wordId: word.id),
+                ],
               ),
             ],
           ),
@@ -144,3 +155,13 @@ class WordOfDayCard extends StatelessWidget {
     );
   }
 }
+/*extension WordSearch on Word {
+  bool matchesQuery(String query) {
+    final q = query.toLowerCase().trim();
+    if (q.isEmpty) return true;
+    return derja.toLowerCase().contains(q) ||
+        arabic.contains(q) ||
+        english.toLowerCase().contains(q) ||
+        pronunciation.toLowerCase().contains(q);
+  }
+}*/

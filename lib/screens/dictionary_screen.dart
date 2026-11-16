@@ -2,9 +2,8 @@
 import 'package:flutter/material.dart';
 
 import '../models/word.dart';
+import '../widgets/word_card.dart';
 import '../data/word_service.dart';
-import '../widgets/dictionary.dart';
-import '../widgets/nav.dart';
 
 class DictionaryScreen extends StatefulWidget {
   const DictionaryScreen({super.key});
@@ -345,8 +344,9 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                     itemBuilder: (context, index) {
                       final word = filteredWords[index];
 
-                      return DictionaryWordCard(
+                      return WordCard(
                         word: word,
+                        featured: true,
                         onTap: () {
                           showWordDetails(context, word);
                         },
@@ -360,7 +360,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
         ),
       ),
 
-      bottomNavigationBar: BottomNavBar(
+      /*bottomNavigationBar: BottomNavBar(
         selectedIndex: 1,
         onTap: (index) {
           if (index == 0) {
@@ -373,173 +373,9 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
             );
           }
         },
-      ),
+      ),*/
     );
   }
 
-  // WORD DETAILS
-  void showWordDetails(BuildContext context, Word word) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 30),
-          decoration: const BoxDecoration(
-            color: Color(0xFFF7F1E5),
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(25),
-            ),
-          ),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.black26,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 25),
-
-                Text(
-                  word.arabic,
-                  textDirection: TextDirection.rtl,
-                  style: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-
-                const SizedBox(height: 7),
-
-                Text(
-                  word.derja,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    color: Color(0xFF315B3D),
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-
-                const SizedBox(height: 5),
-
-                Text(
-                  word.pronunciation,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontStyle: FontStyle.italic,
-                    color: Color(0xFF625D55),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                const Divider(color: Color(0xFFD3C5AE)),
-
-                const SizedBox(height: 12),
-
-                const Text(
-                  'MEANING',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFFB94C3D),
-                    letterSpacing: 1.2,
-                  ),
-                ),
-
-                const SizedBox(height: 6),
-
-                Text(
-                  word.english,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                const Text(
-                  'EXAMPLE',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFFB94C3D),
-                    letterSpacing: 1.2,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEBD9B8),
-                    border: Border.all(
-                      color: const Color(0xFF171717),
-                      width: 2,
-                    ),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        word.example,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 15,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        word.exampleTranslation,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF625D55),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF315B3D),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    word.category.toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 10,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  
 }

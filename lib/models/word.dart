@@ -39,3 +39,14 @@ class Word {
     );
   }
 }
+
+extension WordSearch on Word {
+  bool matchesQuery(String query) {
+    final q = query.toLowerCase().trim();
+    if (q.isEmpty) return true;
+    return derja.toLowerCase().contains(q) ||
+        arabic.contains(q) ||
+        english.toLowerCase().contains(q) ||
+        pronunciation.toLowerCase().contains(q);
+  }
+}
