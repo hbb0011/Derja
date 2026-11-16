@@ -75,7 +75,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            // HEADER
+            
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
               child: Column(
@@ -173,7 +173,6 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
 
                   const SizedBox(height: 20),
 
-                  // SEARCH
                   Container(
                     height: 54,
                     decoration: BoxDecoration(
@@ -227,7 +226,6 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
 
                   const SizedBox(height: 22),
 
-                  // CATEGORY TITLE
                   const Text(
                     'EXPLORE CATEGORIES',
                     style: TextStyle(
@@ -240,7 +238,6 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
 
                   const SizedBox(height: 12),
 
-                  // CATEGORY FILTERS
                   SizedBox(
                     height: 38,
                     child: ListView.separated(
@@ -291,7 +288,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
               ),
             ),
 
-            // WORD LIST
+         
             Expanded(
               child: FutureBuilder<List<Word>>(
                 future: wordsFuture,

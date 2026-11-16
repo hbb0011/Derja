@@ -10,6 +10,7 @@ class Word {
   final String example;
   final String exampleTranslation;
   final String? audio;
+  
 
   Word({
     required this.id,
@@ -21,7 +22,9 @@ class Word {
     required this.difficulty,
     required this.example,
     required this.exampleTranslation,
-    this.audio,
+    required this.audio
+
+ 
   });
 
   factory Word.fromJson(Map<String, dynamic> json) {
@@ -35,8 +38,9 @@ class Word {
       difficulty: json['difficulty'],
       example: json['example'],
       exampleTranslation: json['example_translation'],
-      audio: json['audio'],
+      audio: json['audio']
     );
+  
   }
 }
 

@@ -102,9 +102,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // =========================
-                          // HEADER
-                          // =========================
+                          
                           Row(
                             children: [
                               Container(
@@ -201,9 +199,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
                           const SizedBox(height: 20),
 
-                          // =========================
-                          // SEARCH
-                          // =========================
+                          
                           Container(
                             height: 54,
                             decoration: BoxDecoration(
@@ -245,14 +241,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
                           const SizedBox(height: 18),
 
-                          // =========================
-                          // COLLECTION CARD
-                          // =========================
+                         
                           Container(
                             width: double.infinity,
                             padding: const EdgeInsets.all(12),
 
-                            // OUTER CARD = WHITE
+                           
                             decoration: BoxDecoration(
                               color: const Color(0xFFFFFCF5),
                               border: Border.all(
@@ -265,7 +259,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
                             child: Row(
                               children: [
-                                // HEART BOX = BEIGE
+                              
                                 Container(
                                   width: 48,
                                   height: 48,
@@ -338,9 +332,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
                           const SizedBox(height: 17),
 
-                          // =========================
-                          // RECENTLY SAVED
-                          // =========================
+                         
                           Row(
                             children: [
                               const Text(
@@ -382,9 +374,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       ),
                     ),
 
-                    // =========================
-                    // FAVORITE WORDS
-                    // =========================
+                    
                     Expanded(
                       child: filteredFavorites.isEmpty
                           ? Center(

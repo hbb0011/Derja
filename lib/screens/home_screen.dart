@@ -81,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
 
-              // HEADER
+        
               Row(
                 children: [
                   Container(
@@ -139,12 +139,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SizedBox(height: 30),
 
-              // WELCOME SECTION
+            
               const WelcomeSection(),
 
               const SizedBox(height: 28),
 
-              // SEARCH BAR
+              
               SearchBarWidget(
                 onChanged: (value) {
                   setState(() {
@@ -253,7 +253,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
               const SizedBox(height: 28),
 
-              // EXPLORE SECTION
               Row(
                 children: [
                   const Expanded(

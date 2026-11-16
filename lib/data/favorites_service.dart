@@ -39,7 +39,7 @@ class FavoritesService extends ChangeNotifier {
       _ids.remove(wordId);
     }
 
-    notifyListeners(); // update the UI immediately
+    notifyListeners(); 
     await _save();
   }
 
