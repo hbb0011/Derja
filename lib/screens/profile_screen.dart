@@ -1,336 +1,365 @@
 import 'package:flutter/material.dart';
-import '../data/word_service.dart';
+import 'package:provider/provider.dart';
 
-class ProfileScreen extends StatelessWidget {
+import '../models/category_info.dart';
+import '../models/word.dart';
+import '../providers/favorites_model.dart';
+import '../providers/words_model.dart';
+import '../theme/app_colors.dart';
+import '../widgets/delete_word.dart';
+import '../widgets/hard_card.dart';
+import '../widgets/small_widgets.dart';
+
+/// Tab 4: Profile.
+///   1. small statistics
+///   2. the FORM to add a word            -> POST
+///   3. the list to manage words (bin)    -> DELETE
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-      children: const [
-        _ProfileHeader(),
-        SizedBox(height: 24),
-        _AddWordForm(),
-      ],
-    );
-  }
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader();
+class _ProfileScreenState extends State<ProfileScreen> {
+  // The key identifies the form, so we can call validate() on it.
+  final _formKey = GlobalKey<FormState>();
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-       
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: const Color(0xFFC94F43),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF171717), width: 2),
-            boxShadow: const [
-              BoxShadow(color: Color(0xFF171717), offset: Offset(2, 3)),
-            ],
-          ),
-          child: const Icon(Icons.translate, color: Colors.white, size: 22),
-        ),
+  // One controller per text field = lets us READ (and clear) what the user typed.
+  final _derjaCtrl = TextEditingController();
+  final _arabicCtrl = TextEditingController();
+  final _pronunciationCtrl = TextEditingController();
+  final _englishCtrl = TextEditingController();
+  final _exampleCtrl = TextEditingController();
+  final _exampleTrCtrl = TextEditingController();
+  final _explanationCtrl = TextEditingController();
 
-        const SizedBox(width: 12),
+  // The two choices made with chips.
+  String _category = kCategories.first.name; // 'Greetings'
+  String _difficulty = kDifficulties.first; // 'Beginner'
 
-        
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              'PROFILE & SETTINGS',
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.2,
-                color: Color(0xFF315B3D),
-              ),
-            ),
-            Text(
-              'Your journey',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w900,
-                color: Color(0xFF171717),
-                height: 1.1,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
+  bool _saving = false; // true while the POST request is running
 
-//The form card
-class _AddWordForm extends StatefulWidget {
-  const _AddWordForm();
-
-  @override
-  State<_AddWordForm> createState() => _AddWordFormState();
-}
-
-class _AddWordFormState extends State<_AddWordForm> {
-  // One "notebook" per box. Each one remembers what you typed in its box.
-  final derjaController = TextEditingController();
-  final arabicController = TextEditingController();
-  final pronunciationController = TextEditingController();
-  final englishController = TextEditingController();
-  final categoryController = TextEditingController();
-  final difficultyController = TextEditingController();
-  final exampleController = TextEditingController();
-  final exampleTranslationController = TextEditingController();
-
-  // When this page is destroyed, throw the notebooks away.
   @override
   void dispose() {
-    derjaController.dispose();
-    arabicController.dispose();
-    pronunciationController.dispose();
-    englishController.dispose();
-    categoryController.dispose();
-    difficultyController.dispose();
-    exampleController.dispose();
-    exampleTranslationController.dispose();
+    _derjaCtrl.dispose();
+    _arabicCtrl.dispose();
+    _pronunciationCtrl.dispose();
+    _englishCtrl.dispose();
+    _exampleCtrl.dispose();
+    _exampleTrCtrl.dispose();
+    _explanationCtrl.dispose();
     super.dispose();
   }
 
-    Future<void> saveWord() async {
-    final derja = derjaController.text.trim();
-    final arabic = arabicController.text.trim();
-    final english = englishController.text.trim();
+  // ------------------------------------------------------------------ POST
+  Future<void> _submit() async {
+    // validate() runs every `validator` and shows the red messages.
+    if (!_formKey.currentState!.validate()) return;
 
-    // These three boxes are required
-    if (derja.isEmpty || arabic.isEmpty || english.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
+    // 1. Build a Word from what the user typed (id is empty: the server
+    //    will create it).
+    final newWord = Word(
+      id: '',
+      derja: _derjaCtrl.text.trim(),
+      arabic: _arabicCtrl.text.trim(),
+      pronunciation: _pronunciationCtrl.text.trim(),
+      english: _englishCtrl.text.trim(),
+      category: _category,
+      difficulty: _difficulty,
+      explanation: _explanationCtrl.text.trim(),
+      example: _exampleCtrl.text.trim(),
+      exampleTranslation: _exampleTrCtrl.text.trim(),
+    );
+
+    final words = context.read<WordsModel>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    setState(() => _saving = true); // disable the button + show spinner
+
+    try {
+      // 2. Send it to the server.
+      await words.addWord(newWord);
+
+      // 3. It worked: empty the form and say it.
+      // (mounted = the user did not leave this tab while we were waiting)
+      if (mounted) _clearForm();
+      messenger.showSnackBar(
+        SnackBar(content: Text('"${newWord.derja}" added to the dictionary ✅')),
+      );
+    } catch (e) {
+      // The server did not answer: the word was NOT saved.
+      messenger.showSnackBar(
         const SnackBar(
-          content: Text('Please fill at least: Derja, Arabic and English.'),
+          backgroundColor: Colors.red,
+          content: Text('Could not save: is json-server running?'),
         ),
       );
-      return;
     }
 
-    await WordService.addWord(
-      derja: derja,
-      arabic: arabic,
-      english: english,
-      pronunciation: pronunciationController.text.trim(),
-      category: categoryController.text.trim().isEmpty
-          ? 'My words'
-          : categoryController.text.trim(),
-      difficulty: difficultyController.text.trim().isEmpty
-          ? 'Beginner'
-          : difficultyController.text.trim(),
-      example: exampleController.text.trim(),
-      exampleTranslation: exampleTranslationController.text.trim(),
-    );
-
-    // the page may have closed while we were waiting
-    if (!mounted) return;
-
-    // empty all the boxes
-    derjaController.clear();
-    arabicController.clear();
-    pronunciationController.clear();
-    englishController.clear();
-    categoryController.clear();
-    difficultyController.clear();
-    exampleController.clear();
-    exampleTranslationController.clear();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Word added!')),
-    );
+    if (mounted) setState(() => _saving = false);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFCF5),
-        border: Border.all(color: const Color(0xFF171717), width: 2),
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: const [
-          BoxShadow(color: Color(0xFF171717), offset: Offset(4, 4)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Add a new word',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w900,
-              color: Color(0xFF171717),
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Fill the boxes, then press the button.',
-            style: TextStyle(fontSize: 12, color: Color(0xFF746B5D)),
-          ),
-          const SizedBox(height: 18),
-
-          _FormField(
-            label: 'Derja (Latin letters)',
-            hint: 'Aslema',
-            controller: derjaController,
-          ),
-          _FormField(
-            label: 'Arabic',
-            hint: 'عسلامة',
-            controller: arabicController,
-            textDirection: TextDirection.rtl,
-          ),
-          _FormField(
-            label: 'Pronunciation',
-            hint: 'As-le-ma',
-            controller: pronunciationController,
-          ),
-          _FormField(
-            label: 'English meaning',
-            hint: 'Hello',
-            controller: englishController,
-          ),
-          _FormField(
-            label: 'Category',
-            hint: 'Greetings',
-            controller: categoryController,
-          ),
-          _FormField(
-            label: 'Difficulty',
-            hint: 'Beginner',
-            controller: difficultyController,
-          ),
-          _FormField(
-            label: 'Example sentence',
-            hint: 'Aslema, chnowa a7welek?',
-            controller: exampleController,
-          ),
-          _FormField(
-            label: 'Example translation',
-            hint: 'Hello, how are you?',
-            controller: exampleTranslationController,
-          ),
-
-          const SizedBox(height: 4),
-
-          // The button. It does nothing yet (Step 3 will wake it up).
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: const Color(0xFF315B3D),
-              border: Border.all(color: const Color(0xFF171717), width: 2),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: const [
-                BoxShadow(color: Color(0xFF171717), offset: Offset(0, 3)),
-              ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: saveWord,
-                child: const SizedBox(
-                  height: 46,
-                  child: Center(
-                    child: Text(
-                      'Add word',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  void _clearForm() {
+    _derjaCtrl.clear();
+    _arabicCtrl.clear();
+    _pronunciationCtrl.clear();
+    _englishCtrl.clear();
+    _exampleCtrl.clear();
+    _exampleTrCtrl.clear();
+    _explanationCtrl.clear();
+    _formKey.currentState?.reset(); // also removes the red error messages
+    setState(() {
+      _category = kCategories.first.name;
+      _difficulty = kDifficulties.first;
+    });
   }
-}
 
-//label + text field 
-class _FormField extends StatelessWidget {
-  final String label;
-  final String hint;
-  final TextEditingController controller;
-  final TextDirection? textDirection;
+  // ------------------------------------------------------- form field helper
+  /// One labelled text field. Written once, used 7 times below.
+  Widget _field({
+    required String label,
+    required String hint,
+    required TextEditingController controller,
+    bool mandatory = false, // is the field mandatory?
+    bool rtl = false, // right-to-left (for Arabic)
+    int maxLines = 1,
+  }) {
+    OutlineInputBorder border(Color color, double width) => OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: color, width: width),
+        );
 
-  const _FormField({
-    required this.label,
-    required this.hint,
-    required this.controller,
-    this.textDirection,
-  });
-
-  @override
-  Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 0.8,
-              color: Color(0xFF315B3D),
-            ),
-          ),
+          SectionLabel(label),
           const SizedBox(height: 6),
-          TextField(
+          TextFormField(
             controller: controller,
-            textDirection: textDirection,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF171717),
-            ),
+            maxLines: maxLines,
+            textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+            // The validator returns an error TEXT, or null if all is fine.
+            validator: mandatory
+                ? (value) => (value == null || value.trim().isEmpty)
+                    ? 'This field is required'
+                    : null
+                : null,
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: const TextStyle(
-                color: Color(0xFFB0A793),
-                fontWeight: FontWeight.w600,
-              ),
+              hintStyle: const TextStyle(color: AppColors.muted),
               filled: true,
-              fillColor: const Color(0xFFF7F1E5),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 12,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(
-                  color: Color(0xFF171717),
-                  width: 1.5,
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(
-                  color: Color(0xFF315B3D),
-                  width: 2.5,
-                ),
-              ),
+              fillColor: AppColors.cream,
+              border: border(AppColors.ink, 1.5),
+              enabledBorder: border(AppColors.ink, 1.5),
+              focusedBorder: border(AppColors.green, 2.5),
+              errorBorder: border(Colors.red, 1.5),
+              focusedErrorBorder: border(Colors.red, 2.5),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  /// A row of chips to pick ONE option (category or difficulty).
+  Widget _chips(
+      List<String> options, String selected, ValueChanged<String> onPick) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final option in options)
+          AppChoiceChip(
+            label: option,
+            selected: selected == option,
+            onTap: () => onPick(option),
+          ),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------- screen
+  @override
+  Widget build(BuildContext context) {
+    final words = context.watch<WordsModel>();
+    final favoritesCount = context.watch<FavoritesModel>().count;
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+      children: [
+        // ---- Header ----
+        const Row(
+          children: [
+            AppLogo(),
+            SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SectionLabel('Profile & settings', color: AppColors.muted),
+                Text('Your journey',
+                    style:
+                        TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+
+        // ---- Stats ----
+        Row(
+          children: [
+            Expanded(child: _stat('${words.all.length}', 'words')),
+            const SizedBox(width: 8),
+            Expanded(child: _stat('$favoritesCount', 'favorites')),
+          ],
+        ),
+        const SizedBox(height: 20),
+
+        // ---- The form ----
+        HardCard(
+          padding: const EdgeInsets.all(20),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Add a new word',
+                    style:
+                        TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                const Text('Fill the boxes, then press the button.',
+                    style: TextStyle(color: AppColors.muted)),
+                const SizedBox(height: 20),
+                _field(
+                  label: 'Derja (Latin letters)',
+                  hint: 'Aslema',
+                  controller: _derjaCtrl,
+                  mandatory: true,
+                ),
+                _field(
+                  label: 'Arabic',
+                  hint: 'عسلامة',
+                  controller: _arabicCtrl,
+                  mandatory: true,
+                  rtl: true,
+                ),
+                _field(
+                  label: 'Pronunciation',
+                  hint: 'As-le-ma',
+                  controller: _pronunciationCtrl,
+                ),
+                _field(
+                  label: 'English meaning',
+                  hint: 'Hello',
+                  controller: _englishCtrl,
+                  mandatory: true,
+                ),
+                const SectionLabel('Category'),
+                const SizedBox(height: 8),
+                _chips(
+                  kCategories.map((c) => c.name).toList(),
+                  _category,
+                  (value) => setState(() => _category = value),
+                ),
+                const SizedBox(height: 16),
+                const SectionLabel('Difficulty'),
+                const SizedBox(height: 8),
+                _chips(
+                  kDifficulties,
+                  _difficulty,
+                  (value) => setState(() => _difficulty = value),
+                ),
+                const SizedBox(height: 16),
+                _field(
+                  label: 'Explanation',
+                  hint: 'When and how do we use this word?',
+                  controller: _explanationCtrl,
+                  maxLines: 3,
+                ),
+                _field(
+                  label: 'Example sentence',
+                  hint: 'Aslema, chnowa a7welek?',
+                  controller: _exampleCtrl,
+                ),
+                _field(
+                  label: 'Example translation',
+                  hint: 'Hello, how are you?',
+                  controller: _exampleTrCtrl,
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    // onPressed: null disables the button while saving.
+                    onPressed: _saving ? null : _submit,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.green,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    icon: _saving
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Icon(Icons.add),
+                    label: Text(_saving ? 'Saving...' : 'Add the word'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 28),
+
+        // ---- Manage words (DELETE) ----
+        const SectionLabel('Manage words', color: AppColors.red),
+        const SizedBox(height: 4),
+        const Text('Press the bin to delete a word from the database.',
+            style: TextStyle(color: AppColors.muted)),
+        const SizedBox(height: 12),
+        HardCard(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            children: [
+              if (words.all.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text('No words loaded.'),
+                ),
+              // .reversed = newest first, so a word you just added is on top.
+              for (final w in words.all.reversed)
+                ListTile(
+                  key: ValueKey(w.id),
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(w.derja,
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                  subtitle: Text('${w.english}  •  ${w.category}'),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    onPressed: () => confirmAndDeleteWord(context, w),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// A small statistic box ("56 words").
+  Widget _stat(String number, String label) {
+    return HardCard(
+      color: AppColors.sand,
+      child: Column(
+        children: [
+          Text(number,
+              style:
+                  const TextStyle(fontSize: 30, fontWeight: FontWeight.w800)),
+          Text(label, style: const TextStyle(color: AppColors.muted)),
         ],
       ),
     );

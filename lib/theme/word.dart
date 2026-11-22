@@ -1,10 +1,10 @@
-import 'favorite_button.dart';
+import '../widgets/favorite_button.dart';
 import 'package:flutter/material.dart';
 import '../models/word.dart';
 import '../data/favorites_service.dart';
-import 'favorite_button.dart';
+import '../widgets/favorite_button.dart';
 
-
+//delete later
 class WordOfDayCard extends StatelessWidget {
   final Word word;
 

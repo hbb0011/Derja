@@ -1,46 +1,36 @@
 
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
+import 'hard_card.dart';
+class SearchBox extends StatelessWidget {
+  final String hint;
+  final TextEditingController? controller;
+  final ValueChanged<String>? onChanged; // called at every letter typed
+  final ValueChanged<String>? onSubmitted; // called when pressing Enter
 
-class SearchBarWidget extends StatelessWidget {
-  final ValueChanged<String>? onChanged;
-
-  const SearchBarWidget({
+  const SearchBox({
     super.key,
+    required this.hint,
+    this.controller,
     this.onChanged,
+    this.onSubmitted,
   });
-
-  @override
+   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 55,
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFCF5),
-        border: Border.all(
-          color: const Color(0xFF171717),
-          width: 2,
-        ),
-        borderRadius: BorderRadius.circular(17),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0xFF171717),
-            offset: Offset(4, 4),
-          ),
-        ],
-      ),
+    return HardCard(
+      color: Colors.white,
+      radius: 16,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       child: TextField(
+        controller: controller,
         onChanged: onChanged,
-        decoration: const InputDecoration(
-          hintText: 'Search a word or expression...',
-          hintStyle: TextStyle(
-            fontSize: 13,
-            color: Color(0xFF77736B),
-          ),
-          prefixIcon: Icon(
-            Icons.search,
-            color: Color(0xFF171717),
-          ),
+        onSubmitted: onSubmitted,
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(vertical: 17),
+          icon: const Icon(Icons.search),
+          hintText: hint,
+          hintStyle: const TextStyle(color: AppColors.muted),
         ),
       ),
     );

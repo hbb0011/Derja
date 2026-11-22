@@ -1,369 +1,228 @@
-
 import 'package:flutter/material.dart';
 
-import '../widgets/welcome_section.dart';
+import '../models/category_info.dart';
+import '../theme/app_colors.dart';
+import '../widgets/fade_in_up.dart';
+import '../widgets/hard_card.dart';
 import '../widgets/search.dart';
+import '../widgets/small_widgets.dart';
 import '../widgets/word_card.dart';
-import '../widgets/category.dart';
-import '../widgets/nav.dart';
-import '../data/word_service.dart';
-import '../models/word.dart';
-import 'dictionary_screen.dart';
-import 'favorites_screen.dart';
-import 'profile_screen.dart';
+import '../widgets/words_gate.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+/// Tab 1: Home.
+/// Shows: welcome text, search bar, word of the day, category shortcuts.
+///
+/// The two callbacks let this screen ask the MainScreen to change the tab
+/// (Home doesn't know about the bottom bar, it just says "please open X").
+class HomeScreen extends StatelessWidget {
+  final VoidCallback onOpenDictionary;
+  final VoidCallback onOpenProfile;
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int selectedIndex = 0;
-  late final Future<Word?> wordOfTheDay;
-  late final Future<List<Word>> allWords;
-  String searchQuery = '';
-
-  @override
-  void initState() {
-    super.initState();
-    wordOfTheDay = WordService.getWordOfTheDay();
-    allWords = WordService.getWords();
-  }
-
-  final List<Map<String, dynamic>> situations = [
-    {
-      'title': 'Greetings',
-      'arabic': 'تحية',
-      'icon': Icons.chat_outlined,
-      'color': const Color(0xFFE9D5AD),
-    },
-    {
-      'title': 'Food',
-      'arabic': 'مأكولات',
-      'icon': Icons.restaurant,
-      'color': const Color(0xFFD9968B),
-    },
-    {
-      'title': 'Transport',
-      'arabic': 'نقل',
-      'icon': Icons.directions_bus_outlined,
-      'color': const Color(0xFFA3C9D4),
-    },
-    {
-      'title': 'Shopping',
-      'arabic': 'تسوق',
-      'icon': Icons.shopping_bag_outlined,
-      'color': const Color(0xFFB5C5A7),
-    },
-  ];
-
-
-  void onNavigationTap(int index) {
-    setState(() {
-      selectedIndex = index;
-    });
-  }
+  const HomeScreen({
+    super.key,
+    required this.onOpenDictionary,
+    required this.onOpenProfile,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F1E5),
+    return WordsGate(
+      builder: (context, words) {
+        final wordOfDay = words.wordOfTheDay;
+        final day = DateTime.now().day.toString().padLeft(2, '0'); // 07
 
-      body: SafeArea(
-        child: IndexedStack(
-          index: selectedIndex,
-          children: [
-            SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        // RefreshIndicator = pull down to reload (calls GET again).
+        return RefreshIndicator(
+          onRefresh: words.loadWords,
+          child: ListView(
+            // Lets the pull-to-refresh work even if the list is short.
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
             children: [
-
-        
+              // ---- Welcome ----
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFB94C3D),
-                      border: Border.all(
-                        color: const Color(0xFF171717),
-                        width: 3,
-                      ),
-                      borderRadius: BorderRadius.circular(11),
-                    ),
-                    child: const Icon(
-                      Icons.chat_bubble,
-                      color: Colors.white,
-                      size: 21,
-                    ),
-                  ),
-
-                  const SizedBox(width: 9),
-
-                  const Text(
-                    'DERJA',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.2,
-                      color: Color(0xFF171717),
-                    ),
-                  ),
-
-                  const Spacer(),
-
-                  IconButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('No new notifications'),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Ahlan! Welcome',
+                          style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.w800,
+                              height: 1.1),
                         ),
-                      );
-                    },
-                    icon: const Icon(Icons.notifications_none),
-                    style: IconButton.styleFrom(
-                      backgroundColor: const Color(0xFFFFFCF5),
-                      side: const BorderSide(
-                        color: Color(0xFF171717),
-                        width: 2,
-                      ),
-                      fixedSize: const Size(43, 43),
+                        // Text.rich lets us mix styles in one sentence.
+                        const Text.rich(
+                          TextSpan(
+                            text: 'to ',
+                            children: [
+                              TextSpan(
+                                text: 'Tunisia.',
+                                style: TextStyle(
+                                  color: AppColors.green,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          ),
+                          style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.w800,
+                              height: 1.1),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text('Learn to speak like a local.',
+                            style: TextStyle(color: AppColors.muted)),
+                      ],
                     ),
                   ),
+                  const Text('🌶️', style: TextStyle(fontSize: 52)),
                 ],
               ),
+              const SizedBox(height: 20),
 
-              const SizedBox(height: 30),
-
-            
-              const WelcomeSection(),
-
-              const SizedBox(height: 28),
-
-              
-              SearchBarWidget(
-                onChanged: (value) {
-                  setState(() {
-                    searchQuery = value;
-                  });
+              // ---- Search: on Enter we jump to the Dictionary ----
+              SearchBox(
+                hint: 'Search a word or expression...',
+                onSubmitted: (text) {
+                  words.setFilter(query: text); // category goes back to "All"
+                  onOpenDictionary();
                 },
               ),
+              const SizedBox(height: 24),
 
-              const SizedBox(height: 28),   
-
-              if (searchQuery.trim().isNotEmpty)
-                FutureBuilder<List<Word>>(
-                  future: allWords,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    final results = snapshot.data!
-                        .where((w) => w.matchesQuery(searchQuery))
-                        .toList();
-                    if (results.isEmpty) {
-                      return const Text('No words found. Try another search!');
-                    }
-                    return Column(
-                      children: [
-                        for (final word in results) ...[
-                          WordCard(
-                            word: word,
-                            featured: true,
-                            onTap: () => showWordDetails(context, word),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                      ],
-                    );
-                  },
-                )
-              else ...[
-                // WORD OF THE DAY TITLE
-                Row(
-                  children: const [
-                    Icon(Icons.auto_awesome, color: Color(0xFFB94C3D), size: 16),
-                    SizedBox(width: 7),
-                    Text(
-                      "TODAY'S PICK",
-                      style: TextStyle(
-                        color: Color(0xFFB94C3D),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 11,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Text(
-                      'Word of the day',
-                      style: TextStyle(
-                        fontSize: 21,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF171717),
-                      ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF315B3D),
-                        border: Border.all(color: const Color(0xFF171717), width: 2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text(
-                        'DAY 07',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                FutureBuilder<Word?>(
-                  future: wordOfTheDay,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (snapshot.hasError) {
-                      return Text('Could not load words: ${snapshot.error}');
-                    }
-                    if (!snapshot.hasData || snapshot.data == null) {
-                      return const Text('No words available');
-                    }
-                    final word = snapshot.data!;
-                    return WordCard(
-                      word: word,
-                      featured: true,
-                      onTap: () => showWordDetails(context, word),
-                    );
-                  },
-                ),
-              ],
-              const SizedBox(height: 28),
-
-              Row(
+              // ---- Word of the day ----
+              const Row(
                 children: [
-                  const Expanded(
-                    child: Text(
-                      'Explore by situation',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF171717),
-                      ),
+                  Icon(Icons.auto_awesome, size: 16, color: AppColors.red),
+                  SizedBox(width: 6),
+                  SectionLabel("Today's pick", color: AppColors.red),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Word of the day',
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.green,
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  ),
-
-                  TextButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('All situations coming soon!'),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      'View all  →',
-                      style: TextStyle(
-                        color: Color(0xFF315B3D),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
+                    child: Text('DAY $day',
+                        style: const TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.w700)),
                   ),
                 ],
               ),
-
-              const SizedBox(height: 8),
-
-              // SITUATION CARDS
-              Row(
-                children: situations.map((situation) {
-                  return Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 7),
-                      child: SituationCard(
-                        title: situation['title'],
-                        arabic: situation['arabic'],
-                        icon: situation['icon'],
-                        color: situation['color'],
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                '${situation['title']} selected',
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-
+              const SizedBox(height: 12),
+              if (wordOfDay != null)
+                FadeInUp(child: WordCard(word: wordOfDay)),
               const SizedBox(height: 24),
 
-              // DAILY CHALLENGE / EXTRA SECTION
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: const Color(0xFF315B3D),
-                    width: 2,
+              // ---- Categories ----
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Explore by situation',
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+                  TextButton(
+                    onPressed: () {
+                      words.setFilter(); // no filter = all words
+                      onOpenDictionary();
+                    },
+                    child: const Text('View all →'),
                   ),
-                  borderRadius: BorderRadius.circular(18),
+                ],
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 120,
+                // Horizontal list of tiles (one per category).
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: kCategories.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 6),
+                  itemBuilder: (context, i) {
+                    final c = kCategories[i];
+                    return SizedBox(
+                      width: 112,
+                      child: HardCard(
+                        color: c.color,
+                        radius: 16,
+                        padding: const EdgeInsets.all(10),
+                        onTap: () {
+                          words.setFilter(category: c.name);
+                          onOpenDictionary();
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: AppColors.paper,
+                                borderRadius: BorderRadius.circular(10),
+                                border:
+                                    Border.all(color: AppColors.ink, width: 2),
+                              ),
+                              child: Icon(c.icon, size: 20),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(c.name,
+                                style: const TextStyle(
+                                    fontSize: 13, fontWeight: FontWeight.w700)),
+                            Text(c.arabic,
+                                style: const TextStyle(
+                                    fontSize: 12, color: AppColors.muted)),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
-                child: const Column(
+              ),
+              const SizedBox(height: 20),
+
+              // ---- Bottom card ----
+              HardCard(
+                color: AppColors.paper,
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const Text('Ready to learn more?',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 4),
                     Text(
-                      'Ready to learn more?',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w900,
-                      ),
+                      '${words.all.length} words in the dictionary. '
+                      'Know a word that is missing? Add it yourself!',
+                      style: const TextStyle(color: AppColors.muted),
                     ),
-                    SizedBox(height: 5),
-                    Text(
-                      'Discover new Tunisian words every day!',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.black54,
-                      ),
+                    const SizedBox(height: 12),
+                    FilledButton.icon(
+                      onPressed: onOpenProfile,
+                      style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.green),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add a word'),
                     ),
                   ],
                 ),
               ),
-
             ],
           ),
-        ),
-
-         const DictionaryScreen(),
-            const FavoritesScreen(),
-            const ProfileScreen(),
-          ],
-        ),
-      ),
-
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: selectedIndex,
-        onTap: onNavigationTap,
-      ),
+        );
+      },
     );
   }
 }

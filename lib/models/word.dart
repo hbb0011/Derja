@@ -1,18 +1,18 @@
-
+/// MODEL = a Dart class that represents ONE item of our JSON database.
+/// One JSON object in db.json  <->  one Word object in Dart.
 class Word {
-  final int id;
-  final String derja;
-  final String arabic;
-  final String pronunciation;
-  final String english;
-  final String category;
-  final String difficulty;
-  final String example;
-  final String exampleTranslation;
-  final String? audio;
-  
+  final String id;
+  final String derja; // Latin letters, e.g. "Aslema"
+  final String arabic; // Arabic letters
+  final String pronunciation; // how to read it, e.g. "As-le-ma"
+  final String english; // English meaning
+  final String category; // Greetings, Food...
+  final String difficulty; // Beginner / Intermediate / Advanced
+  final String explanation; // short explanation of how to use the word
+  final String example; // example sentence in Derja
+  final String exampleTranslation; // the sentence in English
 
-  Word({
+  const Word({
     required this.id,
     required this.derja,
     required this.arabic,
@@ -20,37 +20,45 @@ class Word {
     required this.english,
     required this.category,
     required this.difficulty,
+    required this.explanation,
     required this.example,
     required this.exampleTranslation,
-    required this.audio
-
- 
   });
 
+  /// JSON -> Word   (used when we READ from the server: GET)
+  /// "json" is a Map like {"id": 1, "derja": "Aslema", ...}
   factory Word.fromJson(Map<String, dynamic> json) {
     return Word(
-      id: json['id'],
-      derja: json['derja'],
-      arabic: json['arabic'],
-      pronunciation: json['pronunciation'],
-      english: json['english'],
-      category: json['category'],
-      difficulty: json['difficulty'],
-      example: json['example'],
-      exampleTranslation: json['example_translation'],
-      audio: json['audio']
+      // json-server may send the id as a number (1) or text ("1").
+      // .toString() makes both cases work.
+      id: json['id'].toString(),
+      // "as String? ?? ''" = "if the field is missing, use an empty text"
+      // so the app never crashes because of a missing field.
+      derja: json['derja'] as String? ?? '',
+      arabic: json['arabic'] as String? ?? '',
+      pronunciation: json['pronunciation'] as String? ?? '',
+      english: json['english'] as String? ?? '',
+      category: json['category'] as String? ?? 'General',
+      difficulty: json['difficulty'] as String? ?? 'Beginner',
+      explanation: json['explanation'] as String? ?? '',
+      example: json['example'] as String? ?? '',
+      exampleTranslation: json['exampleTranslation'] as String? ?? '',
     );
-  
   }
-}
 
-extension WordSearch on Word {
-  bool matchesQuery(String query) {
-    final q = query.toLowerCase().trim();
-    if (q.isEmpty) return true;
-    return derja.toLowerCase().contains(q) ||
-        arabic.contains(q) ||
-        english.toLowerCase().contains(q) ||
-        pronunciation.toLowerCase().contains(q);
+  /// Word -> JSON   (used when we SEND to the server: POST)
+  /// We do NOT send the id: the server creates it by itself.
+  Map<String, dynamic> toJson() {
+    return {
+      'derja': derja,
+      'arabic': arabic,
+      'pronunciation': pronunciation,
+      'english': english,
+      'category': category,
+      'difficulty': difficulty,
+      'explanation': explanation,
+      'example': example,
+      'exampleTranslation': exampleTranslation,
+    };
   }
 }

@@ -1,62 +1,38 @@
 import 'package:flutter/material.dart';
-import '../data/favorites_service.dart';
+import 'package:provider/provider.dart';
 
+import '../models/word.dart';
+import '../providers/favorites_model.dart';
+import '../theme/app_colors.dart';
+import 'small_widgets.dart';
+
+/// The heart button. Tap = add / remove from favorites.
 class FavoriteButton extends StatelessWidget {
-  final int wordId;
-  final double size;
-
-  const FavoriteButton({
-    super.key,
-    required this.wordId,
-    this.size = 42,
-  });
-
-  static const Color _ink = Color(0xFF171717);
-  static const Color _cream = Color(0xFFFFFCF5);
-  static const Color _red = Color(0xFFB94C3D);
+  final Word word;
+  const FavoriteButton({super.key, required this.word});
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: FavoritesService.instance,
-      builder: (context, _) {
-        final isFavorite = FavoritesService.instance.isFavorite(wordId);
-        final shape = RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: _ink, width: 2),
-        );
+    // watch: the heart redraws when favorites change.
+    final isFav = context.watch<FavoritesModel>().isFavorite(word.id);
 
-        return Tooltip(
-          message: isFavorite ? 'Remove from favorites' : 'Add to favorites',
-          child: Material(
-            color: isFavorite ? _red : _cream,
-            shape: shape,
-            child: InkWell(
-              customBorder: shape,
-              onTap: () => FavoritesService.instance.toggle(wordId),
-              child: SizedBox(
-                width: size,
-                height: size,
-                child: Center(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 220),
-                    transitionBuilder: (child, animation) => ScaleTransition(
-                      scale: animation,
-                      child: child,
-                    ),
-                    child: Icon(
-                      isFavorite ? Icons.favorite : Icons.favorite_border,
-                      key: ValueKey(isFavorite),
-                      size: 21,
-                      color: isFavorite ? Colors.white : _ink,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
+    return CircleButton(
+      // read: we just call a method, no need to redraw because of it.
+      onTap: () => context.read<FavoritesModel>().toggle(word.id),
+
+      // ANIMATION #2: AnimatedSwitcher animates the change between two
+      // widgets. The heart "pops" (scales) when it changes.
+      // The `key` tells Flutter "this is a DIFFERENT widget" so it animates.
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 250),
+        transitionBuilder: (child, animation) =>
+            ScaleTransition(scale: animation, child: child),
+        child: Icon(
+          isFav ? Icons.favorite : Icons.favorite_border,
+          key: ValueKey(isFav),
+          color: isFav ? AppColors.red : AppColors.ink,
+        ),
+      ),
     );
   }
 }

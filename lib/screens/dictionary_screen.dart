@@ -1,10 +1,18 @@
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../models/word.dart';
+import '../models/category_info.dart';
+import '../providers/words_model.dart';
+import '../theme/app_colors.dart';
+import '../widgets/fade_in_up.dart';
+import '../widgets/search.dart';
+import '../widgets/small_widgets.dart';
 import '../widgets/word_card.dart';
-import '../data/word_service.dart';
+import '../widgets/words_gate.dart';
 
+/// Tab 2: the full dictionary with live search + category filter.
+/// StatefulWidget because the search bar needs a TextEditingController
+/// (an object that controls the text inside a text field).
 class DictionaryScreen extends StatefulWidget {
   const DictionaryScreen({super.key});
 
@@ -13,374 +21,118 @@ class DictionaryScreen extends StatefulWidget {
 }
 
 class _DictionaryScreenState extends State<DictionaryScreen> {
-  final TextEditingController searchController =
-      TextEditingController();
-
-  late Future<List<Word>> wordsFuture;
-
-  String selectedCategory = 'All';
-  String searchQuery = '';
-
-  final List<String> categories = [
-    'All',
-    'Greetings',
-    'Food',
-    'Shopping',
-    'Transport',
-    'General',
-  ];
+  late final TextEditingController _searchCtrl;
 
   @override
   void initState() {
     super.initState();
-    wordsFuture = WordService.getWords();
-      WordService.version.addListener(_reload);
-  }
-
-  void _reload() {
-    setState(() {
-      wordsFuture = WordService.getWords();
-    });
+    // Start with the text already in the model (the Home screen may have set it).
+    _searchCtrl = TextEditingController(text: context.read<WordsModel>().query);
   }
 
   @override
   void dispose() {
-    WordService.version.removeListener(_reload);
-    searchController.dispose();
+    _searchCtrl.dispose(); // always free controllers
     super.dispose();
-  }
-
-  List<Word> filterWords(List<Word> words) {
-    return words.where((word) {
-      final query = searchQuery.toLowerCase().trim();
-
-      final matchesSearch =
-          word.derja.toLowerCase().contains(query) ||
-          word.arabic.contains(query) ||
-          word.english.toLowerCase().contains(query);
-
-      final matchesCategory =
-          selectedCategory == 'All' ||
-          word.category == selectedCategory;
-
-      return matchesSearch && matchesCategory;
-    }).toList();
-  }
-
-  void changeCategory(String category) {
-    setState(() {
-      selectedCategory = category;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F1E5),
+    // The chips: "All" + the name of each category.
+    final chips = ['All', ...kCategories.map((c) => c.name)];
 
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    return WordsGate(
+      builder: (context, words) {
+        final results = words.filtered; // words after search + category
 
-            
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        return RefreshIndicator(
+          onRefresh: words.loadWords,
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+            children: [
+              // ---- Header ----
+              const Row(
                 children: [
-
-                  Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFB94C3D),
-                          border: Border.all(
-                            color: const Color(0xFF171717),
-                            width: 2,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.menu_book,
-                          color: Colors.white,
-                        ),
-                      ),
-
-                      const SizedBox(width: 12),
-
-                      const Text(
-                        'DERJA',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 17,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-
-                      const Spacer(),
-
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 7,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFEBD9B8),
-                          border: Border.all(
-                            color: const Color(0xFF171717),
-                            width: 2,
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Text(
-                          'TUNISIAN',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w900,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 27),
-
-                  const Text(
-                    'KLEM TUNSI',
-                    style: TextStyle(
-                      color: Color(0xFFB94C3D),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-
-                  const SizedBox(height: 6),
-
-                  const Text(
-                    'The Dictionary.',
-                    style: TextStyle(
-                      fontSize: 29,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF171717),
-                    ),
-                  ),
-
-                  const SizedBox(height: 5),
-
-                  const Text(
-                    'Discover the words of everyday Tunisia.',
-                    style: TextStyle(
-                      color: Color(0xFF625D55),
-                      fontSize: 13,
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  Container(
-                    height: 54,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFFCF5),
-                      border: Border.all(
-                        color: const Color(0xFF171717),
-                        width: 2,
-                      ),
-                      borderRadius: BorderRadius.circular(15),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color(0xFF171717),
-                          offset: Offset(4, 4),
-                        ),
-                      ],
-                    ),
-                    child: TextField(
-                      controller: searchController,
-                      onChanged: (value) {
-                        setState(() {
-                          searchQuery = value;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Search a word or meaning...',
-                        hintStyle: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF77736B),
-                        ),
-                        prefixIcon: const Icon(
-                          Icons.search,
-                          color: Color(0xFF171717),
-                        ),
-                        suffixIcon: searchQuery.isNotEmpty
-                            ? IconButton(
-                                onPressed: () {
-                                  searchController.clear();
-                                  setState(() {
-                                    searchQuery = '';
-                                  });
-                                },
-                                icon: const Icon(Icons.close),
-                              )
-                            : null,
-                        border: InputBorder.none,
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 22),
-
-                  const Text(
-                    'EXPLORE CATEGORIES',
-                    style: TextStyle(
-                      color: Color(0xFFB94C3D),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.3,
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  SizedBox(
-                    height: 38,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: categories.length,
-                      separatorBuilder: (_, __) =>
-                          const SizedBox(width: 8),
-                      itemBuilder: (context, index) {
-                        final category = categories[index];
-                        final isSelected =
-                            selectedCategory == category;
-
-                        return GestureDetector(
-                          onTap: () => changeCategory(category),
-                          child: AnimatedContainer(
-                            duration:
-                                const Duration(milliseconds: 180),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 15,
-                            ),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? const Color(0xFF315B3D)
-                                  : const Color(0xFFFFFCF5),
-                              border: Border.all(
-                                color: const Color(0xFF171717),
-                                width: 1.5,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              category,
-                              style: TextStyle(
-                                color: isSelected
-                                    ? Colors.white
-                                    : const Color(0xFF171717),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                  AppLogo(icon: Icons.menu_book),
+                  SizedBox(width: 12),
+                  Text('DERJA',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.5)),
                 ],
               ),
-            ),
+              const SizedBox(height: 20),
+              const SectionLabel('Klem Tunsi', color: AppColors.red),
+              const SizedBox(height: 4),
+              const Text('The Dictionary.',
+                  style: TextStyle(fontSize: 34, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 4),
+              const Text('Discover the words of everyday Tunisia.',
+                  style: TextStyle(color: AppColors.muted)),
+              const SizedBox(height: 16),
 
-         
-            Expanded(
-              child: FutureBuilder<List<Word>>(
-                future: wordsFuture,
-                builder: (context, snapshot) {
+              // ---- Search (filters at every letter) ----
+              SearchBox(
+                hint: 'Search a word or meaning...',
+                controller: _searchCtrl,
+                onChanged: words.setQuery,
+              ),
+              const SizedBox(height: 20),
 
-                  if (snapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: Color(0xFF315B3D),
-                      ),
-                    );
-                  }
-
-                  if (snapshot.hasError) {
-                    return const Center(
-                      child: Text('Something went wrong loading words.'),
-                    );
-                  }
-
-                  if (!snapshot.hasData ||
-                      snapshot.data!.isEmpty) {
-                    return const Center(
-                      child: Text('No words available yet.'),
-                    );
-                  }
-
-                  final filteredWords =
-                      filterWords(snapshot.data!);
-
-                  if (filteredWords.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        'No words found. Try another search!',
-                        style: TextStyle(
-                          color: Color(0xFF625D55),
-                          fontWeight: FontWeight.w600,
+              // ---- Category chips ----
+              const SectionLabel('Explore categories', color: AppColors.red),
+              const SizedBox(height: 8),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (final name in chips)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: AppChoiceChip(
+                          label: name,
+                          selected: words.category == name,
+                          onTap: () => words.setCategory(name),
                         ),
                       ),
-                    );
-                  }
-
-                  return ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(
-                      24, 5, 24, 25,
-                    ),
-                    itemCount: filteredWords.length,
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(height: 16),
-                    itemBuilder: (context, index) {
-                      final word = filteredWords[index];
-
-                      return WordCard(
-                        word: word,
-                        featured: true,
-                        onTap: () {
-                          showWordDetails(context, word);
-                        },
-                      );
-                    },
-                  );
-                },
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
+              const SizedBox(height: 16),
+              Text('${results.length} words',
+                  style: const TextStyle(color: AppColors.muted)),
+              const SizedBox(height: 12),
 
-      /*bottomNavigationBar: BottomNavBar(
-        selectedIndex: 1,
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.pop(context);
-          } else if (index != 1) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('This section is coming soon!'),
-              ),
-            );
-          }
-        },
-      ),*/
+              // ---- Results ----
+              if (results.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 40),
+                  child: Center(
+                    child: Text('No word found. Try another search.',
+                        style: TextStyle(color: AppColors.muted)),
+                  ),
+                ),
+
+              // `for` inside a list: one card per word.
+              // asMap().entries gives us the position (index) of each word,
+              // used by FadeInUp to delay the animation a little.
+              for (final entry in results.asMap().entries)
+                Padding(
+                  // The key helps Flutter recognise each card when the
+                  // list changes (search / delete).
+                  key: ValueKey(entry.value.id),
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: FadeInUp(
+                    index: entry.key,
+                    child: WordCard(word: entry.value),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
-
-  
 }
