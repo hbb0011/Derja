@@ -12,7 +12,7 @@ class FavoritesScreen extends StatefulWidget {
 }
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
-  late final Future<List<Word>> _words;
+  late Future<List<Word>> _words;
 
   final TextEditingController _searchController =
       TextEditingController();
@@ -24,6 +24,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     super.initState();
 
     _words = WordService.getWords();
+    WordService.version.addListener(_reload);
 
     _searchController.addListener(() {
       setState(() {
@@ -31,9 +32,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       });
     });
   }
+  void _reload() {
+    setState(() {
+      _words = WordService.getWords();
+    });
+  }
 
   @override
   void dispose() {
+    WordService.version.removeListener(_reload);
     _searchController.dispose();
     super.dispose();
   }

@@ -34,10 +34,18 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
   void initState() {
     super.initState();
     wordsFuture = WordService.getWords();
+      WordService.version.addListener(_reload);
+  }
+
+  void _reload() {
+    setState(() {
+      wordsFuture = WordService.getWords();
+    });
   }
 
   @override
   void dispose() {
+    WordService.version.removeListener(_reload);
     searchController.dispose();
     super.dispose();
   }
