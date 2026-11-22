@@ -10,7 +10,7 @@ import '../data/word_service.dart';
 import '../models/word.dart';
 import 'dictionary_screen.dart';
 import 'favorites_screen.dart';
-import 'dictionary_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -355,7 +355,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
          const DictionaryScreen(),
             const FavoritesScreen(),
-            const Center(child: Text('Profile screen coming soon!')),
+            const ProfileScreen(),
           ],
         ),
       ),
