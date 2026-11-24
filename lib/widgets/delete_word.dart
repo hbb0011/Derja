@@ -43,4 +43,22 @@ Future<bool> confirmAndDeleteWord(BuildContext context, Word word) async {
 
   if (confirmed != true) return false;
 
+  // 2. DELETE request.
+  try {
+    await words.deleteWord(word);
+    favorites.remove(word.id); // also remove it from the favorites
+    messenger.showSnackBar(
+      SnackBar(content: Text('"${word.derja}" deleted')),
+    );
+    return true;
+  } catch (e) {
+    // 3. The server failed: nothing was deleted.
+    messenger.showSnackBar(
+      const SnackBar(
+        backgroundColor: Colors.red,
+        content: Text('Could not delete: is json-server running?'),
+      ),
+    );
+    return false;
+  }
 }
