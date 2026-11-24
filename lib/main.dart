@@ -18,7 +18,7 @@ void main() {
         // ..loadWords() = "create the model, then immediately call GET".
         // So the words start downloading as soon as the app opens.
         ChangeNotifierProvider(create: (_) => WordsModel()..loadWords()),
-        ChangeNotifierProvider(create: (_) => FavoritesModel()),
+        ChangeNotifierProvider(create: (_) => FavoritesModel()..charger()),
         ChangeNotifierProvider(
           create: (_) => ReglagesModel()..charger(),
         ),
