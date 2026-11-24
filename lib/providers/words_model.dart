@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../models/word.dart';
 import '../services/api_service.dart';
+import '../services/speech_service.dart';
 
 /// WordsModel = the "memory" of the app for the words.
 ///
