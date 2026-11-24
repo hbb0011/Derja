@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/word.dart';
+import '../services/api_service.dart';
 
 /// WordsModel = the "memory" of the app for the words.
 ///
@@ -50,7 +51,39 @@ class WordsModel extends ChangeNotifier {
 
   // ---------------------------------------------------------------- GET
   /// Downloads the words from the server.
- 
+  Future<void> loadWords() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners(); // tell the screens: "show the spinner"
+
+    try {
+      _words = await ApiService.getWords();
+    } catch (e) {
+      // Remove the word "Exception:" so the message is nicer.
+      _error = e.toString().replaceFirst('Exception: ', '');
+    }
+
+    _isLoading = false;
+    notifyListeners(); // tell the screens: "new data / error, redraw"
+  }
+
+  // --------------------------------------------------------------- POST
+  /// Sends the new word to the server, then adds it to our local list.
+  /// If the server fails, the exception goes up to the screen (which shows
+  /// a red message).
+  Future<void> addWord(Word word) async {
+    final created = await ApiService.addWord(word); // wait for the server
+    _words.add(created); // only if it worked, we update the list
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------- DELETE
+  /// Deletes the word on the server, then removes it from our local list.
+  Future<void> deleteWord(Word word) async {
+    await ApiService.deleteWord(word.id);
+    _words.removeWhere((w) => w.id == word.id);
+    notifyListeners();
+  }
 
   // ------------------------------------------------------------ filters
   void setCategory(String value) {
