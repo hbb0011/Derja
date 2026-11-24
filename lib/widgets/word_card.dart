@@ -45,7 +45,7 @@ class WordCard extends StatelessWidget {
                     textDirection: TextDirection.rtl, // Arabic = right to left
                     textAlign: TextAlign.right,
                     style: const TextStyle(
-                        fontSize: 32, fontWeight: FontWeight.w700),
+                        fontSize: 32, fontWeight: FontWeight.w700, color: AppColors.ink),
                   ),
                 ),
               ),
@@ -80,10 +80,10 @@ class WordCard extends StatelessWidget {
                 child: Text(
                   word.english,
                   style: const TextStyle(
-                      fontSize: 17, fontWeight: FontWeight.w700),
+                      fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.ink),
                 ),
               ),
-              const Icon(Icons.arrow_forward),
+              const Icon(Icons.arrow_forward, color: AppColors.ink),
             ],
           ),
           const SizedBox(height: 8),

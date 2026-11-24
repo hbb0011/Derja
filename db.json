@@ -50,14 +50,14 @@
     },
     {
       "id": 5,
-      "derja": "Mrehba",
+      "derja": "Marhaba",
       "arabic": "مرحبا",
       "pronunciation": "Mer-heh-ba",
       "english": "Welcome / Hello",
       "category": "Greetings",
       "difficulty": "Beginner",
       "explanation": "Said when someone arrives or when you receive guests. 'Mrehba bik' means 'welcome to you'.",
-      "example": "Mrehba bik fi Tounes!",
+      "example": "Marhaba bik fi Tounes!",
       "exampleTranslation": "Welcome to Tunisia!"
     },
     {
@@ -69,7 +69,7 @@
       "category": "Greetings",
       "difficulty": "Beginner",
       "explanation": "Literally 'with safety'. You say it when you leave. The usual answer is 'Allah ysalmek'.",
-      "example": "Yalla, bessalema, nchoufek ghodwa.",
+      "example": "bessalema, nchoufek ghodwa.",
       "exampleTranslation": "OK, goodbye, see you tomorrow."
     },
     {
@@ -80,21 +80,9 @@
       "english": "Thank you / Well done",
       "category": "Greetings",
       "difficulty": "Beginner",
-      "explanation": "Literally 'may God give you health'. Use it to thank someone, or to say 'good job' to a person who is working.",
+      "explanation": "Literally 'may God give you health'. Use it to thank someone, or to say 'good job' to a person.",
       "example": "Ya3tik essaha 3la el mosa3ada.",
       "exampleTranslation": "Thank you for the help."
-    },
-    {
-      "id": 8,
-      "derja": "Merci barcha",
-      "arabic": "مرسي برشا",
-      "pronunciation": "Mer-see bar-sha",
-      "english": "Thank you very much",
-      "category": "Greetings",
-      "difficulty": "Beginner",
-      "explanation": "Tunisians mix French and Arabic. 'Merci' comes from French and 'barcha' means 'a lot'.",
-      "example": "Merci barcha 3al qahwa!",
-      "exampleTranslation": "Thank you very much for the coffee!"
     },
     {
       "id": 9,
@@ -110,7 +98,7 @@
     },
     {
       "id": 10,
-      "derja": "3aychek",
+      "derja": "Aychek",
       "arabic": "عيشك",
       "pronunciation": "Ay-shek",
       "english": "Please",
@@ -134,14 +122,14 @@
     },
     {
       "id": 12,
-      "derja": "Ma",
+      "derja": "Me",
       "arabic": "ماء",
-      "pronunciation": "Ma",
+      "pronunciation": "Me",
       "english": "Water",
       "category": "Food",
       "difficulty": "Beginner",
-      "explanation": "People say 'ma' or 'el ma'. 'Kes' means glass.",
-      "example": "Nheb kes ma, 3aychek.",
+      "explanation": "People say 'me' or 'el me'. 'Kes' means glass.",
+      "example": "Nheb kes me, 3aychek.",
       "exampleTranslation": "I would like a glass of water, please."
     },
     {
@@ -158,14 +146,14 @@
     },
     {
       "id": 14,
-      "derja": "Atay",
+      "derja": "tay",
       "arabic": "أتاي",
-      "pronunciation": "A-tay",
+      "pronunciation": "tay",
       "english": "Tea",
       "category": "Food",
       "difficulty": "Beginner",
       "explanation": "Tea with mint (na3na3) is very popular in cafes and at home.",
-      "example": "Atay bel na3na3, 3aychek.",
+      "example": "tay bel na3ne3, 3aychek.",
       "exampleTranslation": "Tea with mint, please."
     },
     {
@@ -177,8 +165,8 @@
       "category": "Food",
       "difficulty": "Beginner",
       "explanation": "A crispy fried pastry, often filled with egg, tuna and parsley. Very popular during Ramadan.",
-      "example": "Nheb brik bel bidha.",
-      "exampleTranslation": "I want a brik with an egg."
+      "example": "Nheb brik bel 3tham.",
+      "exampleTranslation": "I want a brik with eggs."
     },
     {
       "id": 16,
@@ -189,7 +177,7 @@
       "category": "Food",
       "difficulty": "Beginner",
       "explanation": "The national dish. Often cooked on Fridays with meat or fish and vegetables.",
-      "example": "Kosksi mta3 yemma behi barcha.",
+      "example": "Kosksi mta3 ommi behi barcha.",
       "exampleTranslation": "My mother's couscous is very good."
     },
     {
@@ -218,38 +206,38 @@
     },
     {
       "id": 19,
-      "derja": "Jou3an",
-      "arabic": "جوعان",
-      "pronunciation": "Joo-aan",
+      "derja": "Ji3an",
+      "arabic": "جيعان",
+      "pronunciation": "Jii-aan",
       "english": "Hungry",
       "category": "Food",
       "difficulty": "Beginner",
-      "explanation": "A man says 'jou3an', a woman says 'jou3ana'.",
-      "example": "Ana jou3an barcha.",
+      "explanation": "A man says 'Ji3an', a woman says 'Ji3ana'.",
+      "example": "Ana Ji3an barcha.",
       "exampleTranslation": "I am very hungry."
     },
     {
       "id": 20,
-      "derja": "3atchen",
+      "derja": "3otchen",
       "arabic": "عطشان",
-      "pronunciation": "Atch-en",
+      "pronunciation": "Otch-en",
       "english": "Thirsty",
       "category": "Food",
       "difficulty": "Intermediate",
-      "explanation": "A man says '3atchen', a woman says '3atchana'.",
-      "example": "Ana 3atchen, jibli ma.",
+      "explanation": "A man says '3otchen', a woman says '3otchana'.",
+      "example": "Ana 3otchen, jibli ma.",
       "exampleTranslation": "I am thirsty, bring me water."
     },
     {
       "id": 21,
-      "derja": "Ch7al",
+      "derja": "Bqadeh",
       "arabic": "شحال",
-      "pronunciation": "Sh-hal",
+      "pronunciation": "b-qa-deeh",
       "english": "How much?",
       "category": "Shopping",
       "difficulty": "Beginner",
       "explanation": "The question you will use the most when shopping. Put it before the thing you want to buy.",
-      "example": "Ch7al el kilo?",
+      "example": "Bqadeh el kilo?",
       "exampleTranslation": "How much is a kilo?"
     },
     {
@@ -385,18 +373,6 @@
       "exampleTranslation": "Where is the beach?"
     },
     {
-      "id": 33,
-      "derja": "Doghri",
-      "arabic": "دغري",
-      "pronunciation": "Dogh-ree",
-      "english": "Straight",
-      "category": "Transport",
-      "difficulty": "Beginner",
-      "explanation": "Used for directions. 'Emchi doghri' means 'go straight'.",
-      "example": "Emchi doghri, mba3d dour limin.",
-      "exampleTranslation": "Go straight, then turn right."
-    },
-    {
       "id": 34,
       "derja": "Limin",
       "arabic": "ليمين",
@@ -525,19 +501,19 @@
       "category": "General",
       "difficulty": "Beginner",
       "explanation": "'Mouch' means 'not' and 'moushkel' means 'problem'.",
-      "example": "Mouch moushkel, nsa3dek.",
+      "example": "Mouch moushkel, n3awnek.",
       "exampleTranslation": "No problem, I will help you."
     },
     {
       "id": 45,
-      "derja": "Yalla",
-      "arabic": "يلا",
-      "pronunciation": "Yal-la",
+      "derja": "Haya",
+      "arabic": "هيا",
+      "pronunciation": "Ha-ya",
       "english": "Let's go",
       "category": "General",
       "difficulty": "Beginner",
       "explanation": "Used everywhere to hurry someone or to say 'come on'.",
-      "example": "Yalla, nemchiw!",
+      "example": "Haya, nemchiw!",
       "exampleTranslation": "Let's go!"
     },
     {
@@ -669,8 +645,8 @@
       "category": "General",
       "difficulty": "Advanced",
       "explanation": "Literally 'what is with you?'. Ask it to a friend who looks upset.",
-      "example": "Chbik, mouch labes?",
-      "exampleTranslation": "What is wrong, are you not OK?"
+      "example": "Chbik, labes?",
+      "exampleTranslation": "What is wrong, are you OK?"
     }
   ]
 }

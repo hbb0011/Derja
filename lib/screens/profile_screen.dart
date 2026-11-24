@@ -228,7 +228,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 const Text('Add a new word',
                     style:
-                        TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+                        TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.ink)),
                 const SizedBox(height: 4),
                 const Text('Fill the boxes, then press the button.',
                     style: TextStyle(color: AppColors.muted)),
@@ -314,41 +314,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         const SizedBox(height: 28),
-
-        // ---- Manage words (DELETE) ----
-        const SectionLabel('Manage words', color: AppColors.red),
-        const SizedBox(height: 4),
-        const Text('Press the bin to delete a word from the database.',
-            style: TextStyle(color: AppColors.muted)),
-        const SizedBox(height: 12),
-        HardCard(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Column(
-            children: [
-              if (words.all.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('No words loaded.'),
-                ),
-              // .reversed = newest first, so a word you just added is on top.
-              for (final w in words.all.reversed)
-                ListTile(
-                  key: ValueKey(w.id),
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(w.derja,
-                      style: const TextStyle(fontWeight: FontWeight.w700)),
-                  subtitle: Text('${w.english}  •  ${w.category}'),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.red),
-                    onPressed: () => confirmAndDeleteWord(context, w),
-                  ),
-                ),
-            ],
-          ),
-        ),
       ],
     );
   }
+
 
   /// A small statistic box ("56 words").
   Widget _stat(String number, String label) {
@@ -358,7 +327,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Text(number,
               style:
-                  const TextStyle(fontSize: 30, fontWeight: FontWeight.w800)),
+                  const TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: AppColors.ink)),
           Text(label, style: const TextStyle(color: AppColors.muted)),
         ],
       ),

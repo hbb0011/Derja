@@ -52,7 +52,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
               children: [
                 CircleButton(
                   onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.arrow_back),
+                  child: const Icon(Icons.arrow_back, color: AppColors.ink),
                 ),
                 FavoriteButton(word: word),
               ],
@@ -71,7 +71,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                       textDirection: TextDirection.rtl,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                          fontSize: 52, fontWeight: FontWeight.w700),
+                          fontSize: 52, fontWeight: FontWeight.w700, color: AppColors.ink),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -82,6 +82,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                         fontSize: 26,
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.w700,
+                        
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -94,7 +95,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                           const SizedBox(width: 10),
                           Text('Say it: ${word.pronunciation}',
                               style: const TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.w600)),
+                                  fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.ink)),
                         ],
                       ),
                     const Divider(
@@ -103,7 +104,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                       word.english,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                          fontSize: 26, fontWeight: FontWeight.w800),
+                          fontSize: 26, fontWeight: FontWeight.w800, color: AppColors.ink),
                     ),
                     const SizedBox(height: 12),
                     Wrap(
@@ -126,7 +127,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                 child: HardCard(
                   child: Text(
                     word.explanation,
-                    style: const TextStyle(fontSize: 16, height: 1.4),
+                    style: const TextStyle(fontSize: 16, height: 1.4, color: AppColors.ink),
                   ),
                 ),
               ),

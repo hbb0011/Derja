@@ -5,6 +5,8 @@ import 'providers/favorites_model.dart';
 import 'providers/words_model.dart';
 import 'screens/main_screen.dart';
 import 'theme/app_colors.dart';
+import 'providers/reglages_model.dart';
+
 
 /// The app starts here.
 void main() {
@@ -17,6 +19,9 @@ void main() {
         // So the words start downloading as soon as the app opens.
         ChangeNotifierProvider(create: (_) => WordsModel()..loadWords()),
         ChangeNotifierProvider(create: (_) => FavoritesModel()),
+        ChangeNotifierProvider(
+          create: (_) => ReglagesModel()..charger(),
+        ),
       ],
       child: const DerjaApp(),
     ),
@@ -28,6 +33,7 @@ class DerjaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final reglages = context.watch<ReglagesModel>();
     return MaterialApp(
       title: 'Derja',
       debugShowCheckedModeBanner: false,
@@ -39,6 +45,19 @@ class DerjaApp extends StatelessWidget {
         snackBarTheme:
             const SnackBarThemeData(behavior: SnackBarBehavior.floating),
       ),
+
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppColors.green,
+          brightness: Brightness.dark,
+        ),
+        snackBarTheme:
+            const SnackBarThemeData(behavior: SnackBarBehavior.floating),
+      ),
+
+      themeMode: reglages.sombre ? ThemeMode.dark : ThemeMode.light,
+
       home: const MainScreen(),
     );
   }

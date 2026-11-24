@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/category_info.dart';
 import '../theme/app_colors.dart';
@@ -8,6 +9,7 @@ import '../widgets/search.dart';
 import '../widgets/small_widgets.dart';
 import '../widgets/word_card.dart';
 import '../widgets/words_gate.dart';
+import '../providers/reglages_model.dart';
 
 /// Tab 1: Home.
 /// Shows: welcome text, search bar, word of the day, category shortcuts.
@@ -26,6 +28,8 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sombre = context.watch<ReglagesModel>().sombre;
+
     return WordsGate(
       builder: (context, words) {
         final wordOfDay = words.wordOfTheDay;
@@ -79,7 +83,21 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const Text('🌶️', style: TextStyle(fontSize: 52)),
+                  Column(
+                    children: [
+                      IconButton(
+                        tooltip: sombre ? 'Switch to light mode' : 'Switch to dark mode',
+                        onPressed: () {
+                          context.read<ReglagesModel>().basculerTheme();
+                        },
+                        icon: Icon(
+                          sombre ? Icons.light_mode : Icons.dark_mode,
+                          size: 28,
+                        ),
+                      ),
+                      const Text('🌶️', style: TextStyle(fontSize: 40)),
+                    ],
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -175,12 +193,12 @@ class HomeScreen extends StatelessWidget {
                                 border:
                                     Border.all(color: AppColors.ink, width: 2),
                               ),
-                              child: Icon(c.icon, size: 20),
+                              child: Icon(c.icon, size: 20, color: AppColors.ink),
                             ),
                             const SizedBox(height: 6),
                             Text(c.name,
                                 style: const TextStyle(
-                                    fontSize: 13, fontWeight: FontWeight.w700)),
+                                    fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.ink)),
                             Text(c.arabic,
                                 style: const TextStyle(
                                     fontSize: 12, color: AppColors.muted)),
@@ -201,7 +219,7 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     const Text('Ready to learn more?',
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w700)),
+                            fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.ink)),
                     const SizedBox(height: 4),
                     Text(
                       '${words.all.length} words in the dictionary. '

@@ -66,7 +66,7 @@ class Tag extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        style: const TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -133,8 +133,8 @@ class AppChoiceChip extends StatelessWidget {
       selectedColor: AppColors.green,
       side: const BorderSide(color: AppColors.ink, width: 1.5),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      labelStyle: TextStyle(
-        color: selected ? Colors.white : AppColors.ink,
+      labelStyle: const TextStyle(
+        color: Colors.black,
         fontWeight: FontWeight.w600,
       ),
     );

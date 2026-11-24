@@ -1,0 +1,29 @@
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class ReglagesModel extends ChangeNotifier {
+  static const String _cle = 'sombre';
+
+  bool _sombre = false;
+
+  bool get sombre => _sombre;
+
+  // Load the saved theme when the app starts.
+  Future<void> charger() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    _sombre = prefs.getBool(_cle) ?? false;
+
+    notifyListeners();
+  }
+
+  // Switch between light and dark mode.
+  Future<void> basculerTheme() async {
+    _sombre = !_sombre;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_cle, _sombre);
+
+    notifyListeners();
+  }
+}

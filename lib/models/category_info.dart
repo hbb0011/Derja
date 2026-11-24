@@ -26,6 +26,7 @@ const List<CategoryInfo> kCategories = [
     arabic: 'تحية',
     icon: Icons.chat_bubble_outline,
     color: AppColors.sand,
+    
   ),
   CategoryInfo(
     name: 'Food',
